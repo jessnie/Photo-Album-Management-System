@@ -171,7 +171,7 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 # Login settings
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/my-photos/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Messages framework
