@@ -1,0 +1,102 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}My Photos - Photo Album Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .header { text-align: center; margin-bottom: 3rem; }
+    .header h1 { color: var(--primary); font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .header p { color: #666; font-size: 1.1rem; }
+    
+    /* Gallery Grid */
+    .gallery-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; }
+    .card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; width: 320px; flex: 0 0 auto; }
+    .card:hover { transform: translateY(-5px); }
+    
+    .img-container { width: 100%; height: 250px; background: #eee; position: relative; }
+    .img-container img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .card-body { padding: 1.5rem; }
+    .card-title { margin: 0 0 0.5rem 0; font-size: 1.25rem; }
+    .card-text { color: #666; font-size: 0.9rem; margin: 0; }
+    .card-meta { font-size: 0.8rem; color: #999; margin-top: 1rem; }
+    
+    .card-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .card-actions a { flex: 1; padding: 0.5rem; text-align: center; border-radius: 4px; text-decoration: none; font-size: 0.85rem; }
+    .btn-edit { background: #4ecdc4; color: white; }
+    .btn-edit:hover { background: #45b7ad; }
+    .btn-delete { background: #ff6b6b; color: white; }
+    .btn-delete:hover { background: #fa5252; }
+    
+    .pagination { text-align: center; margin-top: 3rem; }
+    .pagination-info { background: var(--card-bg); padding: 1rem 2rem; border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block; }
+    .pagination a { color: var(--primary); text-decoration: none; font-weight: bold; margin: 0 0.5rem; }
+    .pagination a:hover { text-decoration: underline; }
+    
+    .empty-state { text-align: center; color: #999; padding: 3rem; }
+    .empty-state p { font-size: 1.1rem; margin-bottom: 1rem; }
+    
+    .back-link { text-align: center; margin-bottom: 2rem; }
+    .back-link a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .back-link a:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="back-link">
+        <a href="{% url 'gallery_home' %}">&larr; Back to All Photos</a>
+    </div>
+
+    <div class="header">
+        <h1>📸 My Photos</h1>
+        <p>You have {{ photos.paginator.count }} photo{{ photos.paginator.count|pluralize }}</p>
+    </div>
+
+    <div class="gallery-grid">
+        {% for photo in photos %}
+        <div class="card">
+            <div class="img-container">
+                <img src="{{ photo.image.url }}" alt="{{ photo.title }}" style="cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+            </div>
+
+            <div class="card-body">
+                <h3 class="card-title">{{ photo.title }}</h3>
+                <p class="card-text">{{ photo.description|truncatewords:15 }}</p>
+                <div class="card-meta">
+                    <span>{{ photo.uploaded_at|date:"M d, Y" }}</span>
+                </div>
+                
+                <div class="card-actions">
+                    <a href="{% url 'photo_edit' photo.pk %}" class="btn-edit">✏️ Edit</a>
+                    <a href="{% url 'photo_delete' photo.pk %}" class="btn-delete">🗑️ Delete</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div style="width: 100%; text-align: center; color: #999;">
+            <div class="empty-state">
+                <p>📭 You haven't uploaded any photos yet.</p>
+                <p><a href="{% url 'gallery_home' %}" style="color: var(--primary); text-decoration: none; font-weight: bold;">Go upload your first photo!</a></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if photos.has_other_pages %}
+    <div class="pagination">
+        <div class="pagination-info">
+            {% if photos.has_previous %}
+                <a href="?page={{ photos.previous_page_number }}">&laquo; Previous</a>
+            {% endif %}
+            
+            <span style="margin: 0 15px; color: #666;">Page {{ photos.number }} of {{ photos.paginator.num_pages }}</span>
+            
+            {% if photos.has_next %}
+                <a href="?page={{ photos.next_page_number }}">Next &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

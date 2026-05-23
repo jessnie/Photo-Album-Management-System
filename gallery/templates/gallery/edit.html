@@ -1,0 +1,85 @@
+{% extends 'gallery/base.html' %}
+
+{% block title %}Edit {{ photo.title }} - Photo Album Manager{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-container { max-width: 700px; margin: 0 auto; }
+    .edit-card { background: var(--card-bg); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .edit-card h2 { color: var(--primary); margin-top: 0; }
+    
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group textarea,
+    .form-group input[type="text"],
+    .form-group input[type="file"] { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; font-family: inherit; }
+    
+    .img-preview { width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 1rem; border: 2px solid #ddd; }
+    
+    .btn-group { display: flex; gap: 1rem; margin-top: 2rem; }
+    .btn-submit { background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-size: 1rem; cursor: pointer; flex: 2; transition: background 0.2s; }
+    .btn-submit:hover { background: #fa5252; }
+    .btn-delete { background: #ff6b6b; color: white; flex: 1; text-align: center; text-decoration: none; }
+    .btn-delete:hover { background: #fa5252; }
+    
+    .btn-back { display: block; text-align: center; margin-top: 1.5rem; color: #999; text-decoration: none; }
+    .btn-back:hover { color: var(--primary); }
+    
+    .owner-info { background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.9rem; color: #666; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="edit-container">
+        <div class="edit-card">
+            <h2>✏️ Edit Photo</h2>
+            
+            <!-- Permission check -->
+            {% if not is_owner and not user.is_staff %}
+                <div style="background: #ffe0e0; color: #c92a2a; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; border-left: 4px solid #c92a2a;">
+                    ❌ You don't have permission to edit this photo.
+                </div>
+                <a href="{% url 'gallery_home' %}" class="btn-back">&larr; Back to Gallery</a>
+            {% else %}
+                <div class="owner-info">
+                    📸 <strong>{{ photo.title }}</strong> by {{ photo.owner.username }} • {{ photo.uploaded_at|date:"M d, Y" }}
+                </div>
+                
+                <!-- Show current image -->
+                <p style="margin-bottom: 0.5rem; font-weight: 500;">Current Image:</p>
+                <img src="{{ photo.image.url }}" class="img-preview" alt="{{ photo.title }}">
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="id_title">Title</label>
+                        {{ form.title }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_description">Description</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_image">Replace Image (Optional)</label>
+                        {{ form.image }}
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="submit" class="btn-submit">✅ Save Changes</button>
+                        <a href="{% url 'photo_delete' photo.pk %}" class="btn-submit btn-delete" style="display: flex; align-items: center; justify-content: center;">🗑️ Delete</a>
+                    </div>
+                </form>
+                
+                <a href="{% url 'gallery_home' %}" class="btn-back">&larr; Back to Gallery</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+</body>
+</html>
